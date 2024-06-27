@@ -1,0 +1,26 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '2.0.0'
+}
+
+group = 'org.notebook'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    implementation "com.formdev:flatlaf:3.4.1"
+    implementation "com.miglayout:miglayout-swing:11.3"
+    implementation(platform("dev.whyoleg.cryptography:cryptography-bom:0.3.1"))
+    implementation "dev.whyoleg.cryptography:cryptography-core"
+    implementation "dev.whyoleg.cryptography:cryptography-provider-jdk"
+}
+
+test {
+    useJUnitPlatform()
+}
+kotlin {
+    jvmToolchain(17)
+}
