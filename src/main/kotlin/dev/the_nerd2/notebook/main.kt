@@ -1,14 +1,32 @@
-package org.notebook
+package dev.the_nerd2.notebook
 
 import com.formdev.flatlaf.FlatLightLaf
 import dev.whyoleg.cryptography.CryptographyProvider
 import dev.whyoleg.cryptography.algorithms.symmetric.AES
 import dev.whyoleg.cryptography.algorithms.symmetric.SymmetricKeySize
 import net.miginfocom.swing.MigLayout
-import java.io.*
-import javax.swing.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.Serializable
+import javax.swing.JButton
+import javax.swing.JDialog
+import javax.swing.JFileChooser
+import javax.swing.JFrame
+import javax.swing.JLabel
+import javax.swing.JMenu
+import javax.swing.JMenuBar
+import javax.swing.JMenuItem
+import javax.swing.JPanel
+import javax.swing.JPasswordField
+import javax.swing.JRadioButton
+import javax.swing.JScrollPane
+import javax.swing.JTextArea
+import javax.swing.SwingUtilities
 
-private val aesGcm = CryptographyProvider.Default.get(AES.GCM)
+private val aesGcm = CryptographyProvider.Companion.Default.get(AES.GCM)
 private lateinit var frame: JFrame
 private lateinit var ui: UI
 private var workingFile: WorkingFile? = null
@@ -18,6 +36,7 @@ private data class WorkingFile(val file: File, val type: Type) {
         PLAIN_TEXT, SERIALIZED
     }
 }
+
 private class EncryptedStorage(text: String, password: String, key: AES.GCM.Key): Serializable {
     private val encryptedText = key.cipher().encryptBlocking(text.encodeToByteArray()).toCollection(arrayListOf())
     private val encryptedPassword = key.cipher().encryptBlocking(password.encodeToByteArray()).toCollection(arrayListOf())
@@ -30,6 +49,7 @@ private class EncryptedStorage(text: String, password: String, key: AES.GCM.Key)
         return null
     }
 }
+
 private class UI: JPanel(MigLayout("nogrid")) {
     val textArea = JTextArea()
     init {
@@ -77,6 +97,7 @@ private fun typeForm(then: (WorkingFile.Type) -> Unit) {
     dialog.pack()
     dialog.isVisible = true
 }
+
 private fun passwordForm(then: (String) -> Boolean) {
     val dialog = JDialog(frame, "Enter file password")
     dialog.layout = MigLayout()
@@ -105,6 +126,7 @@ private fun passwordForm(then: (String) -> Boolean) {
     dialog.pack()
     dialog.isVisible = true
 }
+
 fun main() {
     FlatLightLaf.setup()
     SwingUtilities.invokeLater {
@@ -153,7 +175,7 @@ fun main() {
                     } else {
                         workingFile = WorkingFile(File(fc.selectedFile.absolutePath), WorkingFile.Type.SERIALIZED)
                         passwordForm {
-                            val generator = aesGcm.keyGenerator(SymmetricKeySize.B256)
+                            val generator = aesGcm.keyGenerator(SymmetricKeySize.Companion.B256)
                             val encryptedStorage = EncryptedStorage(ui.textArea.text, it, generator.generateKeyBlocking())
 
                             val foutput = FileOutputStream(workingFile!!.file)
@@ -174,7 +196,7 @@ fun main() {
                     workingFile!!.file.writeText(ui.textArea.text)
                 } else {
                     passwordForm {
-                        val generator = aesGcm.keyGenerator(SymmetricKeySize.B256)
+                        val generator = aesGcm.keyGenerator(SymmetricKeySize.Companion.B256)
                         val encryptedStorage = EncryptedStorage(ui.textArea.text, it, generator.generateKeyBlocking())
 
                         val foutput = FileOutputStream(workingFile!!.file)
